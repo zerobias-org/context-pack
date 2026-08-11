@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": [
+    "Base TypeScript config for ZeroBias content packages.",
+    "",
+    "lib includes DOM and types is explicit because @types/node 24 stopped",
+    "injecting ambient globals implicitly — without these, Buffer, URL,",
+    "node:stream and the generic ReadableStream declarations disappear and",
+    "transpile fails across generated code and vendor SDK type definitions.",
+    "",
+    "Packages with a test suite should extend @zerobias-org/context-pack-dev",
+    "instead, which adds the mocha ambient types."
+  ],
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true
+  }
+}

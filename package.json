@@ -1,0 +1,23 @@
+{
+  "name": "@zerobias-org/context-pack-root",
+  "private": true,
+  "type": "module",
+  "description": "Shared toolchain packs for ZeroBias content packages",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "_comment": [
+    "This root declares NO dependencies on purpose.",
+    "",
+    "The packs exist to pin versions for their consumers. In a repo using the",
+    "zb.monorepo-* gradle plugins, Prepublish.resolve() rewrites each",
+    "package's dependency versions from the ROOT package.json at publish time",
+    "— which would silently replace the pins the packs are meant to carry.",
+    "Keeping the root dependency-free means there is nothing to hoist even if",
+    "that machinery is ever introduced here."
+  ]
+}

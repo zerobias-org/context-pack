@@ -1,0 +1,59 @@
+{
+  "name": "@zerobias-org/context-pack-dev",
+  "version": "0.1.0",
+  "description": "Test and lint toolchain for ZeroBias modules and collector bots",
+  "type": "module",
+  "author": "team@zerobias.com",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:zerobias-org/context-pack.git",
+    "directory": "packages/context-pack-dev"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://pkg.zerobias.org/"
+  },
+  "keywords": [
+    "zerobias",
+    "toolchain",
+    "tsconfig",
+    "hub-module",
+    "collectorbot"
+  ],
+  "exports": {
+    "./tsconfig.json": "./tsconfig.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "tsconfig.json"
+  ],
+  "_comment_dependencies": [
+    "dependencies: consumed ONLY as node_modules/.bin binaries, so npm may",
+    "nest them without breaking anything.",
+    "",
+    "peerDependencies: resolved by the consumer — imported by its source",
+    "(chai, module-test-client), referenced by literal path (eslint-config,",
+    "via the gradle lint task's node_modules/... path), or loaded as ambient",
+    "types through tsconfig (@types/*). npm 7+ installs peers at the",
+    "consumer root, which is the only placement that guarantees resolution;",
+    "a plain dependency can nest and silently break these."
+  ],
+  "dependencies": {
+    "@redocly/cli": "2.44.2",
+    "@zerobias-org/context-pack": "0.1.0",
+    "mocha": "11.8.0",
+    "tsx": "4.23.8"
+  },
+  "peerDependencies": {
+    "@types/chai": "4.3.20",
+    "@types/mocha": "10.0.10",
+    "@zerobias-org/eslint-config": "1.0.41",
+    "@zerobias-org/module-test-client": "1.0.8",
+    "@zerobias-org/util-codegen": "^2.0.54",
+    "chai": "4.5.0"
+  }
+}

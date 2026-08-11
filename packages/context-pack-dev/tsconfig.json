@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": [
+    "TypeScript config for packages with a mocha test suite (Hub modules,",
+    "collector bots). Extends the base and adds the mocha ambient types.",
+    "",
+    "types must list BOTH node and mocha: narrowing to [node] compiles src/",
+    "but breaks the test globals with 'Cannot find name describe'."
+  ],
+  "extends": "@zerobias-org/context-pack/tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "mocha"]
+  }
+}
