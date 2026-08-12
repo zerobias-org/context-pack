@@ -84,23 +84,28 @@ packages cannot drift from one another, only the pack moves.
 A package that genuinely needs a different version can still declare it
 directly. The pack is a default, not a jail.
 
-## Why this repo is not a zbb monorepo
+## Why this repo is not an npm workspace
 
-It deliberately does **not** apply the `zb.monorepo-base/gate/build/publish`
-gradle plugins, and publishes with a plain npm workflow.
+It uses the standard zbb pipeline — `zb.npm-only` per pack, publishing through
+`zbb-publish-reusable` — but it is deliberately **not** an npm workspace, and
+its root `package.json` declares no dependencies. Each pack under `package/`
+resolves and locks its own, the same shape as `auditlogic/module`.
 
-Those plugins' `Prepublish.resolve()` rewrites each package's dependency
-versions from the monorepo root's `package.json` at publish time. That is
-correct for a monorepo of libraries — one version per repo, enforced at
-publish — but it is fundamentally incompatible with a package whose purpose is
-to *carry* pins. A previous attempt to host this in `org/util` published
-`chai ^6.0.0` in place of the pinned `4.5.0`.
+That matters because `Prepublish.resolve()` rewrites a package's dependency
+versions from the **root** `package.json` at publish time. In a workspace
+monorepo with a populated root that silently un-pins every pack: an earlier
+attempt to host these in `org/util` published `chai ^6.0.0` in place of the
+pinned `4.5.0`. With no workspace root carrying dependencies there is nothing
+to hoist, so the pins survive structurally rather than by convention.
 
-The root `package.json` here also declares no dependencies, so there is nothing
-to hoist even if that machinery is introduced later.
+Two guards keep it that way, both failing the gate:
 
-**Do not add the monorepo plugins to this repo.** It will silently un-pin every
-pack.
+- the root `verifyRootHasNoDeps` task, if the root ever gains dependencies
+- the `npmOnlyValidator`, if a pack declares a range instead of an exact pin,
+  or declares a consumer-resolved package as a dependency instead of a peer
+
+**Do not make this repo an npm workspace, and do not add dependencies to the
+root `package.json`.**
 
 ## Staying current
 
@@ -123,7 +128,10 @@ fleet moves in one pack release.
 
 ## Releasing
 
-Bump the version in the same PR that changes the pins. Merging to `main`
-publishes any workspace whose version is not yet on the registry — there is no
-automatic version bumping, because a toolchain change should be a deliberate,
-reviewable act.
+Merging to `main` runs `zbb-publish-reusable`: it bumps each changed pack's
+version from the conventional-commit history, publishes it, and tags the
+release. A `workflow_dispatch` with a `pack` input publishes one pack on
+demand.
+
+Order matters when both packs change: `context-pack-dev` depends on
+`context-pack` at an exact version, so the base publishes first.
