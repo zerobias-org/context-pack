@@ -42,11 +42,11 @@
       "enabled": false
     },
     {
-      "description": "Hold TypeScript below 7 until typescript-eslint supports the TS 7 compiler API. @typescript-eslint 8.x declares peer typescript '>=4.8.4 <6.1.0' and typescript-estree crashes on TS 7 (ts.Extension.Cjs is undefined), which fails lint for every consumer. Same hold as auditlogic/module. Remove when typescript-eslint ships TS 7 support.",
+      "description": "Ceiling comes from @typescript-eslint's peer range (>=4.8.4 <6.1.0), not from the next major number. TS 7 restructured the compiler API and typescript-estree crashes on it (ts.Extension.Cjs undefined), failing lint for every consumer; 6.1+ is equally unsupported. Re-derive this ceiling from the peer range when typescript-eslint widens it.",
       "matchPackageNames": [
         "typescript"
       ],
-      "allowedVersions": "<7"
+      "allowedVersions": "<6.1.0"
     },
     {
       "description": "Hold chai below 6 until consumers migrate. chai 6 is ESM-only with a changed assertion API and every module's test suite is written against 4.x \u2014 bumping it here would break the fleet in one release. @types/chai must match the chai major.",

@@ -1,0 +1,25 @@
+{
+  "_comment": [
+    "Required consumer overrides.",
+    "",
+    "npm only honours `overrides` from the ROOT of an install tree, so a pack",
+    "cannot remediate advisories in its own transitive dependencies — the",
+    "entries below have to live in each consumer's package.json.",
+    "",
+    "This file exists so that requirement is data rather than prose: a",
+    "consumer-side gate validator can read it and fail a module whose",
+    "overrides do not match, and the scaffolder can emit it for new packages.",
+    "",
+    "Current entries are both reached through mocha, which has no released",
+    "version depending on fixed ranges (checked through 12.0.0-rc.6). Expect",
+    "this set to change as advisories are published and upstreams catch up —",
+    "it is living config, not a fixed list.",
+    "",
+    "Verify with `npm audit --omit=dev` in a consumer after install: with these",
+    "entries the tree reports 0 vulnerabilities, without them 3."
+  ],
+  "overrides": {
+    "diff": ">=8.0.3",
+    "serialize-javascript": ">=7.0.3"
+  }
+}

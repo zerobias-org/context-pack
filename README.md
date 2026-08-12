@@ -38,7 +38,13 @@ base. Anything with a test suite takes `-dev`.
 ```jsonc
 // package.json
 "devDependencies": {
-  "@zerobias-org/context-pack-dev": "^0.1.0"
+  "@zerobias-org/context-pack-dev": "^1.0.0"
+},
+// required — see "Transitive advisories" below; the exact set is published
+// at @zerobias-org/context-pack-dev/overrides.json
+"overrides": {
+  "diff": ">=8.0.3",
+  "serialize-javascript": ">=7.0.3"
 }
 ```
 
@@ -80,6 +86,22 @@ dependency, npm nested it, and every consumer failed with
 **Exact pins live here.** Consumers take a caret range on the pack; the pack
 pins each tool exactly. The fleet's toolchain is then uniform by construction —
 packages cannot drift from one another, only the pack moves.
+
+**The packs are 1.x deliberately, and that is the update contract:**
+
+| Consumer range | Picks up automatically | Requires a deliberate bump |
+|---|---|---|
+| `^1.0.0` | every 1.x minor and patch | majors (2.0.0) |
+
+This is why they are not 0.x. Under semver, `^0.1.0` matches only `0.1.x` — a
+`0.2.0` release would never reach a consumer, which defeats the entire point of
+centralising the toolchain. On 1.x, routine updates flow on the next install
+and a breaking toolchain change (a `chai` major, a TypeScript major) needs an
+explicit range bump in each consumer. That gives staged rollout for free: the
+fleet cannot be broken by a single merge here.
+
+So: **put breaking toolchain changes in a pack major.** Anything that should
+reach everyone quietly goes in a minor or patch.
 
 A package that genuinely needs a different version can still declare it
 directly. The pack is a default, not a jail.
