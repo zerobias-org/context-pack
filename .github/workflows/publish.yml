@@ -30,7 +30,9 @@ jobs:
   publish:
     uses: zerobias-org/devops/.github/workflows/zbb-publish-reusable.yml@main
     with:
-      package-depth: 1
+      # Required by the reusable, but unused here: npm-only packs build no
+      # docker image. Set to the owning org so the value is at least honest.
+      ghcr-namespace: zerobias-org
       dispatch-input-name: pack
       dispatch-input-value: ${{ inputs.pack }}
     secrets: inherit
