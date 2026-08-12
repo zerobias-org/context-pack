@@ -102,6 +102,25 @@ to hoist even if that machinery is introduced later.
 **Do not add the monorepo plugins to this repo.** It will silently un-pin every
 pack.
 
+## Staying current
+
+Renovate runs on this repo (weekly, plus immediate PRs for vulnerability
+alerts). Because ~293 packages consume these packs, an update here is a
+fleet-wide event: merging publishes a new pack version and every consumer
+picks it up on its next install.
+
+Standing holds, each with a real blocker rather than caution:
+
+| Package | Held at | Blocker |
+|---|---|---|
+| `typescript` | `<7` | `typescript-eslint` does not support the TS 7 compiler API — `typescript-estree` crashes on `ts.Extension.Cjs`, failing lint for every consumer |
+| `chai` / `@types/chai` | `<6` | chai 6 is ESM-only with a changed assertion API; consumer test suites are written against 4.x |
+| `@types/node` | `<23` | Must track the Node **runtime** major (`.nvmrc` v22, `node:22-alpine` images), not npm latest — typing against APIs the runtime lacks is a bug, not an upgrade |
+
+Majors and internal `@zerobias-*` updates require dashboard approval before a
+PR opens. Patch/minor toolchain updates are grouped into a single PR so the
+fleet moves in one pack release.
+
 ## Releasing
 
 Bump the version in the same PR that changes the pins. Merging to `main`

@@ -1,0 +1,65 @@
+name: Renovate
+
+on:
+  schedule:
+    # Weekly sweep: Mondays 10:00 UTC (04:00 CST / 05:00 CDT — safely inside
+    # the repo config's "before 6am on monday" window in both DST states,
+    # with margin for GitHub's cron delay).
+    - cron: '0 10 * * 1'
+    # Monthly sweep: the 1st at 10:00 UTC — required by the aws-sdk and
+    # dev-tooling groups, whose schedule is "before 6am on the first day of
+    # the month". Without this cron those groups only fire when the 1st
+    # happens to be a Monday. Per-rule schedules override the global one,
+    # so this run releases only the monthly groups (plus CVEs, as always).
+    - cron: '0 10 1 * *'
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: >-
+          Comma-separated module paths to scope this run
+          (e.g. amazon/aws/s3,github/github). Overrides includePaths and
+          schedules — the run acts on exactly these packages immediately.
+          Leave blank for the configured scope.
+        required: false
+      logLevel:
+        description: Renovate log level
+        default: info
+        type: choice
+        options: [info, debug]
+
+# Only one Renovate run at a time
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+# The checkout step needs to read the repo with the ambient GITHUB_TOKEN;
+# everything Renovate does uses the PAT. Grant nothing else.
+permissions:
+  contents: read
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@v46.2.1
+        with:
+          configurationFile: .github/renovate-config.cjs
+          # The action runs Renovate in Docker and only forwards env vars
+          # matching this regex — the default drops our registry tokens.
+          env-regex: '^(?:RENOVATE_\w+|LOG_LEVEL|NPM_PKG_TOKEN|ZB_PKG_TOKEN|GITHUB_COM_TOKEN|NODE_OPTIONS|(?:HTTPS?|NO)_PROXY|(?:https?|no)_proxy)$'
+          # Needs a PAT (classic: repo scope) — the default GITHUB_TOKEN is
+          # NOT enough: PRs it opens won't trigger CI (recursion guard).
+          # DISPATCH_TOKEN is the zerobias-org CI machine-account PAT, minted
+          # for exactly this reason and visible to repos in this org.
+          token: ${{ secrets.RENOVATE_TOKEN || secrets.DISPATCH_TOKEN }}
+        env:
+          # Read token for pkg.zerobias.org, the only private registry this
+          # repo's .npmrc references
+          NPM_PKG_TOKEN: ${{ secrets.NPM_TOKEN }}
+          ZB_PKG_TOKEN: ${{ secrets.ZB_TOKEN }}
+          # On-demand package scoping (see renovate-config.cjs)
+          RENOVATE_DISPATCH_PACKAGES: ${{ inputs.packages }}
+          LOG_LEVEL: ${{ inputs.logLevel || 'info' }}
