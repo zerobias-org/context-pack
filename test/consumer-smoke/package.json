@@ -1,0 +1,27 @@
+{
+  "name": "consumer-smoke",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture module that consumes the packs exactly as a Hub module does",
+  "scripts": {
+    "smoke": "tsc && eslint --config node_modules/@zerobias-org/eslint-config/eslint.config.js src test && mocha"
+  },
+  "_comment": [
+    "The pack dependency is rewritten to a file: tarball by",
+    "scripts/consumer-smoke.sh before install, so the smoke test always runs",
+    "against the CANDIDATE packs in the working tree — not whatever is",
+    "published.",
+    "",
+    "The overrides mirror context-pack-dev/overrides.json: they are what every",
+    "real consumer must declare, so the fixture proves that set still yields a",
+    "clean `npm audit --omit=dev`."
+  ],
+  "devDependencies": {
+    "@zerobias-org/context-pack-dev": "1.0.0"
+  },
+  "overrides": {
+    "diff": ">=8.0.3",
+    "serialize-javascript": ">=7.0.3"
+  }
+}

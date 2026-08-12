@@ -1,0 +1,5 @@
+{
+  "spec": ["test/**/*.test.ts"],
+  "import": "tsx",
+  "timeout": 10000
+}

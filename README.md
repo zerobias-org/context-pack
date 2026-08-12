@@ -129,6 +129,36 @@ Two guards keep it that way, both failing the gate:
 **Do not make this repo an npm workspace, and do not add dependencies to the
 root `package.json`.**
 
+## Verifying a pack change
+
+The gradle gate validates the packs' **shape** — exact pins, dependency vs
+peer classification, a dependency-free root. It cannot tell you whether a
+consumer still builds, which is the question that matters for a Renovate bump.
+
+`scripts/consumer-smoke.sh` answers that: it builds the candidate packs from
+the working tree and runs a fixture module (`test/consumer-smoke/`) against
+them — peer placement at the consumer root, `tsc`, `eslint` through the shared
+config, `mocha`, and `npm audit`. It runs on every PR touching `package/`.
+
+```bash
+./scripts/consumer-smoke.sh     # same thing locally
+```
+
+**What it does and does not catch**, measured by injecting each regression:
+
+| Injected into the pack | Caught |
+|---|---|
+| `typescript` → 7 (crashes typescript-eslint) | ✅ yes |
+| a peer demoted to a plain dependency | ✅ yes (explicit placement check) |
+| a toolchain dep with a fresh advisory | ✅ yes (`npm audit`) |
+| `chai` 4 → 6 | ❌ no — the fixture's assertion style still works |
+| `lib`/`types` narrowed in the shipped tsconfig | ❌ no — with peers at the consumer root, TypeScript auto-includes `@types` anyway |
+
+So a green smoke means *the toolchain still works*, not *no consumer can
+break*. For a change with real API surface — an assertion library major, a
+codegen major — pilot it on a real module before releasing, and put it in a
+pack **major** so consumers opt in.
+
 ## Staying current
 
 Renovate runs on this repo (weekly, plus immediate PRs for vulnerability

@@ -1,0 +1,68 @@
+name: Pull Request
+
+# Verification for pack changes — especially Renovate's.
+#
+# The packs' gradle gate validates their SHAPE: exact pins, dependency vs peer
+# classification, a dependency-free root. It cannot tell you whether a consumer
+# still builds. Without this workflow a dependency bump could pass the gate,
+# publish, and break modules on their next install.
+#
+# scripts/consumer-smoke.sh builds the candidate packs from the branch and runs
+# a fixture module against them: peer placement, tsc, eslint (through the
+# pack's shared config, resolved by literal path), mocha, and npm audit.
+#
+# Scope, honestly: this catches toolchain changes that break the build outright
+# — a TypeScript major that crashes typescript-eslint is caught here. It does
+# NOT catch API-level breakage in assertion libraries beyond what the fixture
+# exercises. Treat a green run as "the toolchain still works", not "no consumer
+# can possibly break".
+
+on:
+  pull_request:
+    paths:
+      - 'package/**'
+      - 'test/consumer-smoke/**'
+      - 'scripts/consumer-smoke.sh'
+      - '.github/workflows/pull-request.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: pr-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Authenticate to Vault
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: jwt
+          role: publishing-role
+          path: gh-actions
+          jwtGithubAudience: "https://github.com/zerobias-org"
+          secrets: |
+            operations-kv/data/ci/github readPackagesToken | NPM_TOKEN ;
+            operations-kv/data/ci/github zb-token | ZB_TOKEN
+
+      - name: Gate (pack shape)
+        run: ./gradlew gate
+
+      - name: Consumer smoke (does a module still build?)
+        run: ./scripts/consumer-smoke.sh
