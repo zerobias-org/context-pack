@@ -6,3 +6,6 @@ bin/
 *.log
 .DS_Store
 .npmrc.local
+.gradle/
+.zbb-gradle/
+gate-stamp.json.bak

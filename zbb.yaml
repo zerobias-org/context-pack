@@ -1,0 +1,16 @@
+name: "@zerobias-org/context-pack"
+version: "1.0.0"
+
+# No env block: these packs have no build, no tests, and nothing to load —
+# publishing needs only the npm registry token, which zbb sources from the
+# repo .npmrc / ZB_TOKEN.
+
+# ── Lifecycle ────────────────────────────────────────────────────────
+lifecycle:
+  clean:     ./gradlew clean
+  build:     ./gradlew build
+  test:      ./gradlew test
+  gate:      ./gradlew gate
+  gateCheck: ./gradlew gateCheck
+  version:   ./gradlew versionStandardPackages
+  publish:   ./gradlew publish

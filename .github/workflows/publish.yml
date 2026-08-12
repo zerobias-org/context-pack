@@ -1,67 +1,36 @@
 name: Publish
 
-# Deliberately a plain npm publish, NOT the zb.monorepo-* gradle pipeline.
+# Thin caller — the pipeline lives in
+# zerobias-org/devops/.github/workflows/zbb-publish-reusable.yml, same as
+# auditlogic/module and the migrated content repos.
 #
-# That pipeline's Prepublish.resolve() rewrites each package's dependency
-# versions from the monorepo root at publish time. These packs exist to carry
-# pins for their consumers, so having them overwritten defeats the package.
-# See README "Why this repo is not a zbb monorepo".
+# Safe for pin-carrying packs BECAUSE this repo is not an npm workspace and
+# its root package.json declares no dependencies: Prepublish.resolve() has
+# nothing to hoist, so each pack's exact pins survive publish. The root's
+# verifyRootHasNoDeps task fails the gate if that ever stops being true.
 
 on:
   push:
     branches: [main]
-    paths: ['packages/**']
+    paths:
+      - 'package/**'
+      - '.github/workflows/publish.yml'
   workflow_dispatch:
+    inputs:
+      pack:
+        description: 'Pack to publish (e.g. context-pack-dev). Blank for all changed.'
+        required: false
 
 permissions:
-  contents: read
+  contents: write
+  packages: write
   id-token: write
-
-concurrency:
-  group: publish
-  cancel-in-progress: false
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Authenticate to Vault
-        uses: hashicorp/vault-action@v3
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: jwt
-          role: publishing-role
-          path: gh-actions
-          jwtGithubAudience: "https://github.com/zerobias-org"
-          secrets: |
-            operations-kv/data/ci/github writePackagesToken | NPM_TOKEN ;
-            operations-kv/data/ci/github zb-token | ZB_TOKEN
-
-      # Publish each workspace whose version is not already on the registry.
-      # No version bumping here on purpose: these packs pin toolchains, so a
-      # release is a deliberate act — bump the version in the PR that changes
-      # the pins, and merging publishes exactly that.
-      - name: Publish changed packages
-        env:
-          ZB_TOKEN: ${{ env.ZB_TOKEN }}
-        run: |
-          set -euo pipefail
-          published=0
-          for dir in packages/*/; do
-            name=$(node -p "require('./${dir}package.json').name")
-            version=$(node -p "require('./${dir}package.json').version")
-            if npm view "${name}@${version}" version --registry=https://pkg.zerobias.org >/dev/null 2>&1; then
-              echo "= ${name}@${version} already published — skipping"
-              continue
-            fi
-            echo "→ publishing ${name}@${version}"
-            (cd "$dir" && npm publish --registry=https://pkg.zerobias.org)
-            published=$((published + 1))
-          done
-          echo "published ${published} package(s)"
+    uses: zerobias-org/devops/.github/workflows/zbb-publish-reusable.yml@main
+    with:
+      package-depth: 1
+      dispatch-input-name: pack
+      dispatch-input-value: ${{ inputs.pack }}
+    secrets: inherit
