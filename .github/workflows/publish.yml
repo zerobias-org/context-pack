@@ -33,6 +33,14 @@ jobs:
       # Required by the reusable, but unused here: npm-only packs build no
       # docker image. Set to the owning org so the value is at least honest.
       ghcr-namespace: zerobias-org
+      # Serialize the matrix. context-pack-dev depends on context-pack at an
+      # EXACT version, so when both change the dev pack's `npm install` races
+      # the base pack's publish and fails with E404 on a version that is
+      # seconds away from existing. Observed twice (0.2.0 and 1.0.0 releases):
+      # dev started 18:31:14 and failed at 18:32:08 while base published at
+      # 18:33:16. Matrix entries are alphabetical, so context-pack publishes
+      # before context-pack-dev.
+      max-parallel: 1
       dispatch-input-name: pack
       dispatch-input-value: ${{ inputs.pack }}
     secrets: inherit

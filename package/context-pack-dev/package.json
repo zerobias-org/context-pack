@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/context-pack-dev",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Test and lint toolchain for ZeroBias modules and collector bots",
   "type": "module",
   "author": "team@zerobias.com",
@@ -46,7 +46,7 @@
   ],
   "dependencies": {
     "@redocly/cli": "2.46.1",
-    "@zerobias-org/context-pack": "1.0.0",
+    "@zerobias-org/context-pack": "2.0.0",
     "mocha": "11.8.0",
     "tsx": "4.23.12"
   },

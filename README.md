@@ -38,7 +38,7 @@ base. Anything with a test suite takes `-dev`.
 ```jsonc
 // package.json
 "devDependencies": {
-  "@zerobias-org/context-pack-dev": "^1.0.0"
+  "@zerobias-org/context-pack-dev": "^2.0.0"
 },
 // required — see "Transitive advisories" below; the exact set is published
 // at @zerobias-org/context-pack-dev/overrides.json
@@ -91,7 +91,7 @@ packages cannot drift from one another, only the pack moves.
 
 | Consumer range | Picks up automatically | Requires a deliberate bump |
 |---|---|---|
-| `^1.0.0` | every 1.x minor and patch | majors (2.0.0) |
+| `^2.0.0` | every 2.x minor and patch | majors (3.0.0) |
 
 This is why they are not 0.x. Under semver, `^0.1.0` matches only `0.1.x` — a
 `0.2.0` release would never reach a consumer, which defeats the entire point of
@@ -102,6 +102,18 @@ fleet cannot be broken by a single merge here.
 
 So: **put breaking toolchain changes in a pack major.** Anything that should
 reach everyone quietly goes in a minor or patch.
+
+**2.0.0 is the first use of that mechanism**: it moves the compiler from
+TypeScript 5.9.3 to 6.0.3. Consumers opt in by bumping their range, rather
+than inheriting a compiler major on their next install.
+
+### Publishing order
+
+`context-pack-dev` depends on `context-pack` at an exact version, so when both
+change the base must publish first. The workflow sets `max-parallel: 1` for
+exactly this reason — run in parallel, the dev pack's install races the base
+pack's publish and fails with `E404` on a version that is seconds from
+existing. It happened on both the 0.2.0 and 1.0.0 releases.
 
 A package that genuinely needs a different version can still declare it
 directly. The pack is a default, not a jail.
