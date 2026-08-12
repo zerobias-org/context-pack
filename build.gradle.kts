@@ -6,6 +6,20 @@ plugins {
 
 group = "com.zerobias.contextpack"
 
+// Required by the zbb CLI: it maps the current working directory to a gradle
+// project path through this task. Without it `zbb publish` from inside a pack
+// fails with "has build.gradle.kts but isn't registered in settings.gradle.kts"
+// even though settings.gradle.kts registers it correctly.
+val projectPaths by tasks.registering {
+    group = "info"
+    description = "Output project-to-directory mappings for tooling (used by zbb CLI)"
+    doLast {
+        subprojects.filter { it.buildFile.exists() }.forEach { p ->
+            println("${p.path}=${p.projectDir.relativeTo(rootDir)}")
+        }
+    }
+}
+
 // ── Validator for zb.npm-only ──────────────────────────────────────────
 //
 // These packs exist to pin a toolchain for ~293 consumer packages. Two
