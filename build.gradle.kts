@@ -42,10 +42,25 @@ extra["npmOnlyValidator"] = { proj: org.gradle.api.Project ->
     val mapper = jacksonObjectMapper()
     val pkg = mapper.readTree(proj.file("package.json"))
 
-    // 1. Exact pins in `dependencies` — the sibling pack is allowed to be
-    //    referenced exactly too, so no exemption is needed.
+    // 1. Exact pins in `dependencies`.
+    //
+    //    One exemption: the sibling pack. An exact pin there means the dev
+    //    pack's CI install demands a base version that is being published in
+    //    the same run, which raced and failed on the 0.2.0, 1.0.0 and 2.0.0
+    //    releases. A caret range resolves against the already-published base
+    //    instead, and the packs move in lockstep anyway because they are
+    //    released together from this repo.
+    val siblingPacks = setOf("@zerobias-org/context-pack")
     pkg["dependencies"]?.fields()?.forEach { (name, spec) ->
         val v = spec.asText()
+        if (name in siblingPacks) {
+            require(v.startsWith("^")) {
+                "[context-pack] ${proj.name}: sibling '$name' must use a caret " +
+                    "range, got '$v'. An exact pin races the sibling's publish " +
+                    "in the same CI run."
+            }
+            return@forEach
+        }
         require(v.isNotEmpty() && v[0].isDigit()) {
             "[context-pack] ${proj.name}: dependency '$name' must be an exact " +
                 "pin, got '$v'. These packs exist to pin — a range lets " +

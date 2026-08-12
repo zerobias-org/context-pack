@@ -46,7 +46,7 @@
   ],
   "dependencies": {
     "@redocly/cli": "2.46.1",
-    "@zerobias-org/context-pack": "2.0.0",
+    "@zerobias-org/context-pack": "^2.0.0",
     "mocha": "11.8.0",
     "tsx": "4.23.12"
   },
