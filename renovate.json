@@ -1,57 +1,97 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":dependencyDashboard"],
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
   "timezone": "America/Chicago",
-  "schedule": ["before 6am on monday"],
-  "enabledManagers": ["npm"],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "enabledManagers": [
+    "npm"
+  ],
   "rangeStrategy": "pin",
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "commitMessagePrefix": "deps:",
-  "ignorePaths": ["**/node_modules/**"],
+  "ignorePaths": [
+    "**/node_modules/**"
+  ],
   "packageRules": [
     {
-      "description": "These packs exist to pin, so every update must be an exact version — never a range. Mirrors the npmOnlyValidator rule in build.gradle.kts, which fails the gate on a range.",
-      "matchPackageNames": ["**"],
+      "description": "These packs exist to pin, so every update must be an exact version \u2014 never a range. Mirrors the npmOnlyValidator rule in build.gradle.kts, which fails the gate on a range.",
+      "matchPackageNames": [
+        "**"
+      ],
       "rangeStrategy": "pin"
     },
     {
       "description": "@types/node must track the Node RUNTIME major (.nvmrc v22, node:22-alpine images), not npm latest. Typing against Node 26 APIs that do not exist at runtime is a bug, not an upgrade. Raise this ceiling only when the runtime moves.",
-      "matchPackageNames": ["@types/node"],
+      "matchPackageNames": [
+        "@types/node"
+      ],
       "allowedVersions": "<23"
     },
     {
+      "description": "Never propose engines bumps. engines.node/npm declare the RUNTIME floor these packs are built for (.nvmrc v22, node:22-alpine images) \u2014 the same reason @types/node is capped. Raising them here would claim support for a runtime nothing actually runs on. Move them by hand when the runtime moves.",
+      "matchDepTypes": [
+        "engines"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Hold TypeScript below 7 until typescript-eslint supports the TS 7 compiler API. @typescript-eslint 8.x declares peer typescript '>=4.8.4 <6.1.0' and typescript-estree crashes on TS 7 (ts.Extension.Cjs is undefined), which fails lint for every consumer. Same hold as auditlogic/module. Remove when typescript-eslint ships TS 7 support.",
-      "matchPackageNames": ["typescript"],
+      "matchPackageNames": [
+        "typescript"
+      ],
       "allowedVersions": "<7"
     },
     {
-      "description": "Hold chai below 6 until consumers migrate. chai 6 is ESM-only with a changed assertion API and every module's test suite is written against 4.x — bumping it here would break the fleet in one release. @types/chai must match the chai major.",
-      "matchPackageNames": ["chai", "@types/chai"],
+      "description": "Hold chai below 6 until consumers migrate. chai 6 is ESM-only with a changed assertion API and every module's test suite is written against 4.x \u2014 bumping it here would break the fleet in one release. @types/chai must match the chai major.",
+      "matchPackageNames": [
+        "chai",
+        "@types/chai"
+      ],
       "allowedVersions": "<6"
     },
     {
-      "description": "Internal ZeroBias packages can carry breaking contract changes — surface them on the dashboard and require a human to approve before a PR opens.",
-      "matchPackageNames": ["@zerobias-org/**", "@zerobias-com/**"],
+      "description": "Internal ZeroBias packages can carry breaking contract changes \u2014 surface them on the dashboard and require a human to approve before a PR opens.",
+      "matchPackageNames": [
+        "@zerobias-org/**",
+        "@zerobias-com/**"
+      ],
       "dependencyDashboardApproval": true
     },
     {
-      "description": "Toolchain patch/minor updates — grouped into one PR so the fleet moves in a single pack release.",
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchPackageNames": ["!@zerobias-org/**", "!@zerobias-com/**"],
+      "description": "Toolchain patch/minor updates \u2014 grouped into one PR so the fleet moves in a single pack release.",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackageNames": [
+        "!@zerobias-org/**",
+        "!@zerobias-com/**"
+      ],
       "groupName": "toolchain"
     },
     {
       "description": "Majors are a fleet-wide event: every consumer inherits them from one pack release. Keep them separate and never grouped.",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true
     }
   ],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": [
+      "security"
+    ]
   },
   "osvVulnerabilityAlerts": true,
   "prBodyNotes": [
-    "⚠️ **This pack is consumed by ~293 packages.** Merging publishes a new pack version, and every consumer picks it up on its next install. Check the changelog for behaviour changes before merging, and bump the pack version in this PR — the publish pipeline releases whatever version is on `main`."
+    "\u26a0\ufe0f **This pack is consumed by ~293 packages.** Merging publishes a new pack version, and every consumer picks it up on its next install. Check the changelog for behaviour changes before merging, and bump the pack version in this PR \u2014 the publish pipeline releases whatever version is on `main`."
   ]
 }

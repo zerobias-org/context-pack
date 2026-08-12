@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/context-pack-dev",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Test and lint toolchain for ZeroBias modules and collector bots",
   "type": "module",
   "author": "team@zerobias.com",
@@ -35,7 +35,7 @@
     "dependencies: consumed ONLY as node_modules/.bin binaries, so npm may",
     "nest them without breaking anything.",
     "",
-    "peerDependencies: resolved by the consumer — imported by its source",
+    "peerDependencies: resolved by the consumer \u2014 imported by its source",
     "(chai, module-test-client), referenced by literal path (eslint-config,",
     "via the gradle lint task's node_modules/... path), or loaded as ambient",
     "types through tsconfig (@types/*). npm 7+ installs peers at the",
@@ -43,10 +43,10 @@
     "a plain dependency can nest and silently break these."
   ],
   "dependencies": {
-    "@redocly/cli": "2.44.2",
-    "@zerobias-org/context-pack": "0.1.0",
+    "@redocly/cli": "2.46.1",
+    "@zerobias-org/context-pack": "0.2.0",
     "mocha": "11.8.0",
-    "tsx": "4.23.8"
+    "tsx": "4.23.12"
   },
   "peerDependencies": {
     "@types/chai": "4.3.20",
