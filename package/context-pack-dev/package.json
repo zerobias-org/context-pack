@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/context-pack-dev",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Test and lint toolchain for ZeroBias modules and collector bots",
   "type": "module",
   "author": "team@zerobias.com",
@@ -42,7 +42,16 @@
     "via the gradle lint task's node_modules/... path), or loaded as ambient",
     "types through tsconfig (@types/*). npm 7+ installs peers at the",
     "consumer root, which is the only placement that guarantees resolution;",
-    "a plain dependency can nest and silently break these."
+    "a plain dependency can nest and silently break these.",
+    "",
+    "util-codegen is a peer even though hub-generator is a binary. Two",
+    "reasons it cannot be a plain dependency: util-hub-module-utils carries",
+    "its own conflicting copy, so npm has an active reason to nest ours, and",
+    "a nested copy links its bin into the nested .bin rather than the",
+    "consumer root, where `npx hub-generator` looks. The gradle generator",
+    "tasks also read node_modules/@zerobias-org/util-codegen/package.json by",
+    "literal path to fingerprint the generator version; a nested copy makes",
+    "that read miss and silently restores the stale-generation bug."
   ],
   "dependencies": {
     "@redocly/cli": "2.46.1",
@@ -55,7 +64,7 @@
     "@types/mocha": "10.0.10",
     "@zerobias-org/eslint-config": "1.0.41",
     "@zerobias-org/module-test-client": "1.0.8",
-    "@zerobias-org/util-codegen": "^2.0.54",
+    "@zerobias-org/util-codegen": "3.0.11",
     "chai": "4.5.0"
   }
 }
