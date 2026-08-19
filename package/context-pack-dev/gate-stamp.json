@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "branch": "main",
+  "version": "3.0.0-uat.0",
+  "branch": "feat/pin-codegen-3",
   "sourceHash": "906aea2b4f229899b5626b02cb499f1c4daf19cc28889e7d84fcea72ee5b6f14",
   "testHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "tasks": {
