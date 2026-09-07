@@ -54,10 +54,10 @@
     "that read miss and silently restores the stale-generation bug."
   ],
   "dependencies": {
-    "@redocly/cli": "2.46.1",
+    "@redocly/cli": "2.51.2",
     "@zerobias-org/context-pack": "^2.0.0",
     "mocha": "11.8.0",
-    "tsx": "4.23.12"
+    "tsx": "4.23.13"
   },
   "peerDependencies": {
     "@types/chai": "4.3.20",
